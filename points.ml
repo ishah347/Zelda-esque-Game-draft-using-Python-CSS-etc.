@@ -14,6 +14,7 @@ object (this)
 
   method pos : float * float = x, y
 
+  (* Round the absolute value of each coordinate before re-adding its sign *)
   method round : int * int = 
     let round_up_or_down f = 
       if (abs_float f -. floor (abs_float f)) < 0.5 then int_of_float f
