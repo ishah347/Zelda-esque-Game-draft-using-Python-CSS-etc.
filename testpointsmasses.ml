@@ -1,9 +1,11 @@
 (*
-                       Point masses with forces
+                  Testing File for Points and Masses
                           CS51 Problem Set 7
                          -.-. ... ..... .----
  *)
 
+(* Testing within Points and Masses affected other files that used Points and
+   Masses, so I decided to make a seperate file for tests *)
 open Points ;;
 open Masses ;;
 
