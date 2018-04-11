@@ -1,4 +1,4 @@
-all: points masses graphobj testalign testgraphs testuniformcentered example
+all: points masses graphobj testalign testgraphs testuniformcentered example testpointsmasses
 
 points: points.ml
 	ocamlbuild points.byte	
@@ -20,6 +20,9 @@ testuniformcentered: testuniformcentered.ml
 
 example: example.ml
 	ocamlbuild example.byte	
+
+testpointsmasses: testpointsmasses.ml
+	ocamlbuild testpointsmasses.byte			
 
 clean:
 	rm -rf _build *.byte

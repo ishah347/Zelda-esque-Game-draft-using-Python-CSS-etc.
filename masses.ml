@@ -69,24 +69,6 @@ class mass =
         flush stdout
     end ;;
 
-let _ =
-  let a = new mass 3. 4. 1. in
-  let b = new point 501. 501. in
-  let c = new point 0. 0. in
-  let d = new point 1000. 1000. in
-  let _ = a#move b in
-  assert(a#pos = (500., 500.)) ;
-  let _ = a#restore_pos in
-  assert(a#pos = (3., 4.)) ;
-  let _ = a#move c in
-  assert(a#pos = (0., 0.)) ;
-  let _ = a#restore_pos in
-  assert(a#pos = (3., 4.)) ;
-  let _ = a#move d in
-  assert(a#pos = (500., 500.)) ;
-  let _ = a#restore_pos in
-  assert(a#pos = (3., 4.))
-
 (*======================================================================
 Time estimate
 
