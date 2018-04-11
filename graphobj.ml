@@ -44,8 +44,8 @@ let draw_triangle (pt : point) (dir : point) (scale : float) : unit =
   fill_poly [| pt#round; left#round; right#round |] ;;
                                                  
 (* Minimum and maximum elements in a list *)
-let minimum = CS51.reduce min ;;
-let maximum = CS51.reduce max ;;
+let minimum lst = CS51.reduce min lst ;;
+let maximum lst = CS51.reduce max lst ;;
 
 (*......................................................................
   Graphical objects
@@ -128,7 +128,33 @@ class circle ?(label : string = "")
               h : int            height of the rectangle
  *)
 
-     
+class rectangle ?(label : string = "")
+                ?(col : color = black)
+                ?(layer : int = 20)
+                ?(textcol : color = red)
+                ?(linewidth : int = cLINEWIDTH) 
+                (m : point)
+                (w : int)
+                (h : int) =
+  object
+    inherit drawable ~label ~layer col
+    val anchor : point = m
+    val width : int = w
+    val height : int = h
+    val textcolor : color = textcol
+    val linewidth : int = linewidth
+                       
+    method draw =
+      let (x, y) as p = anchor#round in
+      set_line_width linewidth;
+      set_color background;
+      fill_rect (x - width / 2) (y - height / 2) width height;
+      set_color color;
+      draw_rect (x - width / 2) (y - height / 2) width height;
+      set_color textcolor;
+      draw_text_centered label p
+  end
+
 (* Class square -- nodes depicted with a small square
    Arguments: ?label : string    optional label for the node (default: "")
               ?col : color       color to  draw the square (black)
@@ -138,7 +164,17 @@ class circle ?(label : string = "")
               m : point          center of the square
               w : int            width of the square
  *)
-   
+
+class square ?(label : string = "")
+             ?(col : color = black)
+             ?(layer : int = 20)
+             ?(textcol : color = red)
+             ?(linewidth : int = cLINEWIDTH) 
+             (m : point)
+             (w : int) =
+  object
+    inherit rectangle ~label ~col ~layer ~textcol ~linewidth m w w
+  end
     
 (* Class edge -- an edge between two points
    Arguments: ?label : string    optional label for the edge (default: "")
@@ -149,7 +185,29 @@ class circle ?(label : string = "")
               source : point     source point of the edge
               target : point     target point of the edge
  *)
-   
+
+class edge ?(label : string = "")
+           ?(col : color = black)
+           ?(layer : int = 10)
+           ?(textcol : color = red)
+           ?(linewidth : int = cLINEWIDTH) 
+           (source : point)
+           (target : point) =
+  object
+    inherit drawable ~label ~layer col
+    val source : point = source
+    val target : point = target
+    val textcolor : color = textcol
+    val linewidth : int = linewidth
+                       
+    method draw =
+      let midpoint = ((source#plus target)#scale 0.5)#round in
+      set_line_width linewidth;
+      set_color color;
+      draw_poly_line [|source#round; target#round|];
+      set_color textcolor;
+      draw_text_centered label midpoint
+  end   
      
 (* Class zone -- a zone box that surrounds a set of points
    Arguments: ?label : string      optional label for the edge (default: "")
@@ -163,6 +221,35 @@ class circle ?(label : string = "")
               points : point list  points defining the zone to be enclosed
  *)
      
+class zone ?(label : string = "")
+           ?(col : color = black)
+           ?(textcol : color = red)
+           ?(layer : int = 0)
+           ?(border : int = 20)
+           ?(linewidth : int = cLINEWIDTH) 
+           (points : point list) =
+  object
+    inherit drawable ~label ~layer col
+    val border : int = border
+    val points : point list = points
+    val textcolor : color = textcol
+    val linewidth : int = linewidth
+                       
+    method draw =
+      let x, y = List.split (List.map (fun p -> p#round) points) in
+      let min_x, min_y = ((minimum x) - border), ((minimum y) - border) in
+      let max_x, max_y = ((maximum x) + border), ((maximum y) + border) in
+      let _, h = text_size label in
+      let text_center = ((max_x + min_x) / 2), (min_y - h) in
+      let vertices = 
+        [|(max_x, max_y); (max_x, min_y); (min_x, min_y); (min_x, max_y)|] in
+      set_line_width linewidth;
+      set_color color;
+      draw_poly vertices;
+      set_color textcolor;
+      draw_text_centered label text_center
+  end 
+
 (*======================================================================
 Time estimate
 
@@ -172,5 +259,4 @@ about your responses and will use them to help guide us in creating
 future assignments.
 ......................................................................*)
 
-let minutes_spent_on_part () : int =
-  failwith "no time estimate provided for graphobj" ;;
+let minutes_spent_on_part () : int = 100 ;;

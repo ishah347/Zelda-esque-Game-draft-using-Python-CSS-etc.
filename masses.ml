@@ -13,17 +13,28 @@ class mass =
   let currid = ref 0 in
 
   fun (initx : float) (inity : float) (m : float) ->
-    object (this)
-           
+    object (this)     
       (* A mass is located at a point *)
       inherit point initx inity as super
-                                     
+      (* Store coordinates of point before moving *)
+      val mutable old_x = initx
+      val mutable old_y = inity 
       (* Unique identifier for the mass *)
       val id = currid := !currid + 1; !currid
       method get_id = id
                         
       (* The mass itself *)
       val mass = m
+
+      method! move (p : point) : unit =
+        let clip f = 
+          if f > (float cFRAMESIZE) then (float cFRAMESIZE) else f in
+        old_x <- this#x;
+        old_y <- this#y;
+        super#move (new point (clip p#x) (clip p#y))
+
+      method restore_pos : unit = 
+        this#move (new point old_x old_y)    
 
       (*................................................................
       Your part goes here: Provide the implementations of the move and
@@ -56,7 +67,25 @@ class mass =
         let x, y = this#pos in
         Printf.printf "Mass %d: %f, %f\n" this#get_id x y;
         flush stdout
-    end
+    end ;;
+
+let _ =
+  let a = new mass 3. 4. 1. in
+  let b = new point 501. 501. in
+  let c = new point 0. 0. in
+  let d = new point 1000. 1000. in
+  let _ = a#move b in
+  assert(a#pos = (500., 500.)) ;
+  let _ = a#restore_pos in
+  assert(a#pos = (3., 4.)) ;
+  let _ = a#move c in
+  assert(a#pos = (0., 0.)) ;
+  let _ = a#restore_pos in
+  assert(a#pos = (3., 4.)) ;
+  let _ = a#move d in
+  assert(a#pos = (500., 500.)) ;
+  let _ = a#restore_pos in
+  assert(a#pos = (3., 4.))
 
 (*======================================================================
 Time estimate
@@ -67,5 +96,4 @@ about your responses and will use them to help guide us in creating
 future assignments.
 ......................................................................*)
 
-let minutes_spent_on_part () : int =
-  failwith "no time estimate provided for masses" ;;
+let minutes_spent_on_part () : int = 60 ;;
